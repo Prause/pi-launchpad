@@ -1,0 +1,34 @@
+{
+    "signals": [
+        {
+            "key": "power",
+            "command": ["irsend", "SEND_ONCE", "STR-DE205", "KEY_POWER"],
+            "name": "Power"
+        },
+
+        {
+            "key": "vol_up",
+            "command": "irsend SEND_ONCE STR-DE205 KEY_VOLUMEUP",
+            "name": "Vol++"
+        },
+
+        {
+            "key": "vol_down",
+            "command": "irsend SEND_ONCE STR-DE205 KEY_VOLUMEDOWN",
+            "name": "Vol--"
+        },
+
+        {
+            "key": "amazing",
+            "command": ["scripts/webradio", "http://stream.amazingradio.com:8000/0"],
+            "name": "Amazing Radio"
+        },
+
+        {
+            "key": "stop",
+            "command": ["killall", "mplayer"],
+            "name": "Stop"
+        }
+    ]
+}
+

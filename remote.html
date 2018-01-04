@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8"/>
+        <meta id="meta" name="viewport" content="width=device-width; initial-scale=1.0" />
+
+        <style>
+.key {
+    padding: 10px;
+    margin: 2px;
+    font-weight: 300;
+    color: #222;
+    border: 1px solid #000;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+
+    width: 100px;
+    height: 40px;
+    overflow: hidden;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+body {
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    max-width: 720px;
+    display: inline-block;
+}
+        </style>
+
+        <script>
+function signal(key) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST","/signals/" + key + "/signal",true);
+    xhr.send();
+}
+        </script>
+
+    </head>
+
+    <body>
+    <div class="container">
+
+    % for s in signals:
+    <div class="key" onclick="signal('{{s["key"]}}');">{{s["name"]}}</div>
+    % end
+
+    </div>
+    </body>
+
+</html>
