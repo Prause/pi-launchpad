@@ -28,6 +28,13 @@
             "key": "stop",
             "command": ["killall", "mplayer"],
             "name": "Stop"
+        },
+
+        {
+            "key": "seek",
+            "command": ["xmms2", "seek", "TIME"],
+            "name": "seek",
+            "variable": "TIME"
         }
     ]
 }

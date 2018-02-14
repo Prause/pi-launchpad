@@ -40,10 +40,11 @@ body {
         </style>
 
         <script>
-function signal(key) {
+function signal(key, needsInput) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST","/signals/" + key + "/signal",true);
-    xhr.send();
+    var input = needsInput ? prompt( "value" ) : undefined;
+    xhr.send( input );
 }
         </script>
 
@@ -53,7 +54,7 @@ function signal(key) {
     <div class="container">
 
     % for s in signals:
-    <div class="key" onclick="signal('{{s["key"]}}');">{{s["name"]}}</div>
+    <div class="key" onclick="signal('{{s["key"]}}', {{"true" if "variable" in s else "false"}});">{{s["name"]}}</div>
     % end
 
     </div>

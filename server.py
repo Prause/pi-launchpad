@@ -1,4 +1,4 @@
-from bottle import route, run, abort, template
+from bottle import route, run, abort, template, request
 from subprocess import Popen
 import argparse
 import json
@@ -20,7 +20,14 @@ def handle_signal(signal_key):
         if isinstance(command, str):
             Popen( ["bash", "-c", command] )
         else:
-            Popen( command )
+            if "variable" in known_signals[signal_key]:
+                key = known_signals[signal_key]["variable"]
+                val = request.body.read().decode('utf8')
+                cmd = [ val if s == key else s for s in command ]
+                if( val ):
+                    Popen( cmd )
+            else:
+                Popen( command )
     else:
         abort(404, "Not a known signal")
 
