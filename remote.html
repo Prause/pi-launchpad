@@ -2,16 +2,17 @@
 <html>
 
     <head>
+        <title>pi-launchpad</title>
         <meta charset="utf-8"/>
         <meta id="meta" name="viewport" content="width=device-width; initial-scale=1.0" />
 
-        <style>
+<style>
 .key {
     padding: 10px;
     margin: 2px;
     font-weight: 300;
-    color: #222;
-    border: 1px solid #000;
+    color: var(--color-fg);
+    border: 1px solid var(--color-fg);
     text-decoration: none;
     cursor: pointer;
     display: inline-block;
@@ -26,35 +27,104 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
+    transition: background-color 0.5s;
 }
 
 .key:active {
-    background-color: #bbc;
+    transition: none;
+    background-color: var(--color-act);
 }
 
 body {
+    --color-bg: #fff;
+    --color-fg: #222;
+    --color-act: #bbc;
     padding: 20px;
     text-align: center;
+    font-family: sans-serif;
+    background-color: var(--color-bg);
+}
+
+body.night {
+    --color-bg: #000;
+    --color-fg: #aaa;
+    --color-act: #444;
 }
 
 .container {
     max-width: 720px;
     display: inline-block;
 }
-        </style>
 
-        <script>
+#connection-status {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    padding: 2px;
+    color: #222;
+    background: #fcba03;
+}
+
+#connection-status.active {
+  display: inline-block;
+}
+</style>
+
+<script>
 function signal(key, needsInput) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST","/signals/" + key + "/signal",true);
     var input = needsInput ? prompt( "value" ) : undefined;
+    xhr.addEventListener('load', () => setStatus());
     xhr.send( input );
 }
-        </script>
+
+  function onActivate() {
+      setDaytime();
+      if(!document.hidden) {
+          checkUp();
+        }
+    }
+
+  function setStatus(status) {
+      var statusContainer = document.querySelector("#connection-status");
+      if(status) {
+          statusContainer.innerHTML = status;
+          statusContainer.classList.add("active");
+      } else {
+          statusContainer.classList.remove("active");
+      }
+    }
+
+  function checkUp() {
+      fetch("/health")
+        .then(() => { setStatus() })
+        .catch(() => { setStatus("You're offline!") });
+    }
+
+  function setDaytime() {
+      var now = new Date();
+      var h = now.getHours() + now.getMinutes() / 60;
+      console.log(h);
+      if(h > 22.5 || h < 6.5) {
+          document.body.classList.add("night");
+      } else {
+          document.body.classList.remove("night");
+      }
+    }
+
+  document.addEventListener("visibilitychange", onActivate);
+  document.addEventListener("focus", onActivate);
+
+</script>
 
     </head>
 
-    <body>
+    <body class="night">
+    <div id="connection-status"></div>
     <div class="container">
 
     % for s in signals:
@@ -64,4 +134,8 @@ function signal(key, needsInput) {
     </div>
     </body>
 
+    <script>
+      checkUp();
+      setDaytime();
+    </script>
 </html>

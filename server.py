@@ -13,6 +13,10 @@ def main():
     return template( "remote.html", signals=signals )
 
 
+@route("/health")
+def health():
+    return "ok"
+
 @route("/signals/<signal_key>/signal", method="POST")
 def handle_signal(signal_key):
     if signal_key in known_signals:
@@ -45,6 +49,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-p", "--port", type=int, default=8080, help="port the service will listen on for signals. default is 8080")
     parser.add_argument("-c", "--config", default="./conf.json", help="config json-file for the launchpad. default is ./conf.json")
+    parser.add_argument("-d", "--debug", action="store_true")
 
     args = parser.parse_args()
     with open(args.config) as conf_file:
@@ -53,4 +58,4 @@ if __name__ == "__main__":
         signals = config["signals"]
         known_signals = { s["key"]: s for s in signals }
 
-    run(host="0.0.0.0", port=args.port)
+    run(host="0.0.0.0", port=args.port, debug=args.debug)
