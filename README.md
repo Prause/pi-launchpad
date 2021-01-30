@@ -3,7 +3,7 @@ Very basic browser "remote control" to launch commands on your raspberry (or any
 
 ## depencencies
 
-The server uses the bottlepy framework, please download the self-contained python file at http://bottlepy.org/ and place it in the `server.py`'s directory or PIP-install it.
+The server uses the bottlepy framework, please download the self-contained python file at http://bottlepy.org/ and place it in the `server.py`'s directory or PIP-install it (see the `requirements.txt`).
 (Tested with Bottle 0.12)
 
 For the lazy:
@@ -27,6 +27,8 @@ Disclaimer: Be warned that this allows anyone with access to the remote's UI to 
 For array commands you can add a `variable` to the config. For those commands, any occurrence in the `command` array is substituted by an input value provided by the user.
 E.g. in `{ "command": [ "echo", "FOO", "FOO BAR" ], "variable": "FOO" }` the first "FOO" will be substituted, the second in "FOO BAR" won't.
 The command will not be executed, if no input is provided.
+
+In addition to keys, the config can also contain `divider` which are just horizontal labels between groups of keys, which can be useful if you have a lot of keys.
 
 ## running the server
 

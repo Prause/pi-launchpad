@@ -43,6 +43,7 @@ body {
     padding: 20px;
     text-align: center;
     font-family: sans-serif;
+    color: var(--color-fg);
     background-color: var(--color-bg);
 }
 
@@ -128,7 +129,12 @@ function signal(key, needsInput) {
     <div class="container">
 
     % for s in signals:
+    % if 'divider' in s:
+    <div>{{s["divider"]}}</div>
+    % end
+    % if 'key' in s:
     <div class="key" onclick="signal('{{s["key"]}}', {{"true" if "variable" in s else "false"}});">{{s["name"]}}</div>
+    % end
     % end
 
     </div>

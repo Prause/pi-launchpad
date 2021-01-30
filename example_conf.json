@@ -19,6 +19,10 @@
         },
 
         {
+            "divider": "other keys"
+        },
+
+        {
             "key": "amazing",
             "command": ["scripts/webradio", "http://stream.amazingradio.com:8000/0"],
             "name": "Amazing Radio"

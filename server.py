@@ -10,6 +10,7 @@ args = {}
 
 @route("/")
 def main():
+    global signals
     return template( "remote.html", signals=signals )
 
 
@@ -19,6 +20,7 @@ def health():
 
 @route("/signals/<signal_key>/signal", method="POST")
 def handle_signal(signal_key):
+    global known_signals
     if signal_key in known_signals:
         command = known_signals[signal_key]["command"]
         if isinstance(command, str):
@@ -38,11 +40,13 @@ def handle_signal(signal_key):
 
 @route("/config/reload", method="POST")
 def reload_config():
+    global signals
+    global known_signals
     with open(args.config) as conf_file:
         config = json.loads( conf_file.read() )
 
         signals = config["signals"]
-        known_signals = { s["key"]: s for s in signals }
+        known_signals = { s["key"]: s for s in signals if "key" in s }
 
 
 if __name__ == "__main__":
@@ -52,10 +56,6 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--debug", action="store_true")
 
     args = parser.parse_args()
-    with open(args.config) as conf_file:
-        config = json.loads( conf_file.read() )
-
-        signals = config["signals"]
-        known_signals = { s["key"]: s for s in signals }
+    reload_config()
 
     run(host="0.0.0.0", port=args.port, debug=args.debug)
