@@ -8,8 +8,9 @@
 
 <style>
 .key {
+    --key-padding: 10px;
     position: relative;
-    padding: 10px;
+    padding: var(--key-padding);
     margin: 2px;
     font-weight: 300;
     color: var(--color-fg);
@@ -38,6 +39,7 @@
 }
 
 .key-label {
+    width: calc(100% - 2 * var(--key-padding));
     position: absolute;
     top: 50%;
     left: 50%;
