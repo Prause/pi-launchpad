@@ -8,6 +8,7 @@
 
 <style>
 .key {
+    position: relative;
     padding: 10px;
     margin: 2px;
     font-weight: 300;
@@ -34,6 +35,13 @@
 .key:active {
     transition: none;
     background-color: var(--color-act);
+}
+
+.key-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
 }
 
 body {
@@ -133,7 +141,7 @@ function signal(key, needsInput) {
     <div>{{s["divider"]}}</div>
     % end
     % if 'key' in s:
-    <div class="key" onclick="signal('{{s["key"]}}', {{"true" if "variable" in s else "false"}});">{{s["name"]}}</div>
+    <div class="key" onclick="signal('{{s["key"]}}', {{"true" if "variable" in s else "false"}});"><div class="key-label">{{s["name"]}}</div></div>
     % end
     % end
 
