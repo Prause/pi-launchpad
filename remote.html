@@ -63,6 +63,14 @@ body.night {
     --color-act: #444;
 }
 
+@media (prefers-color-scheme: dark) {
+    body {
+        --color-bg: #000;
+        --color-fg: #aaa;
+        --color-act: #444;
+    }
+}
+
 .container {
     max-width: 720px;
     display: inline-block;
@@ -116,11 +124,35 @@ function signal(key, needsInput) {
         .catch(() => { setStatus("You're offline!") });
     }
 
+  function getDaytimeFlat() {
+      const lookup = [
+          [[8,9], [16,22]],
+          [[7,22], [17,19]],
+          [[6,20], [18,11]],
+          [[6,8], [20,05]],
+          [[5,10], [20,56]],
+          [[4,42], [21,31]],
+          [[5,1], [21,22]],
+          [[5,49], [20,31]],
+          [[6,40], [19,21]],
+          [[7,32], [18,11]],
+          [[7,28], [16,13]],
+          [[8,10], [15,52]],
+        ];
+      const now = new Date();
+      const [start, end] = lookup[now.getMonth()]
+        .map(t => {
+            const d = new Date();
+            d.setHours(...t);
+            return d;
+          })
+      return [start, end]
+    }
+
   function setDaytime() {
       var now = new Date();
-      var h = now.getHours() + now.getMinutes() / 60;
-      console.log(h);
-      if(h > 22.5 || h < 6.5) {
+      var [dayStart, dayEnd] = getDaytimeFlat();
+      if(now < dayStart || now > dayEnd) {
           document.body.classList.add("night");
       } else {
           document.body.classList.remove("night");
