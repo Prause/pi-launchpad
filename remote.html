@@ -7,14 +7,19 @@
         <meta id="meta" name="viewport" content="width=device-width; initial-scale=1.0" />
 
 <style>
+h2 {
+    margin-bottom: 8px;
+    font-weight: 300;
+}
+
 .key {
     --key-padding: 10px;
     position: relative;
     padding: var(--key-padding);
-    margin: 2px;
     font-weight: 300;
+    text-align: center;
     color: var(--color-fg);
-    border: 1px solid var(--color-fg);
+    background-color: var(--color-bg);
     text-decoration: none;
     cursor: pointer;
     display: inline-block;
@@ -31,11 +36,21 @@
     user-select: none;
 
     transition: background-color 0.5s;
+
+    box-shadow:
+      -10px -10px 22px 0 rgba(255,255,255, 0.8),
+      -4px -4px 8px 0 #fff,
+      10px 10px 22px 0 rgba(174,174,192, 0.3),
+      4px 4px 8px 0 rgba(174,174,192, 0.5);
 }
 
 .key:active {
     transition: none;
     background-color: var(--color-act);
+
+    box-shadow:
+      -4px -4px 4px 0 rgba(255,255,255, 0.8),
+      4px 4px 4px 0 rgba(174,174,192, 0.3);
 }
 
 .key-label {
@@ -47,9 +62,9 @@
 }
 
 body {
-    --color-bg: #fff;
+    --color-bg: #f0f0f3;
+    --color-act: #f0f0f3;
     --color-fg: #222;
-    --color-act: #bbc;
     padding: 20px;
     text-align: center;
     font-family: sans-serif;
@@ -63,18 +78,36 @@ body.night {
     --color-act: #444;
 }
 
+body.night .key, body.night .key:active {
+    box-shadow: none;
+    border: 1px solid var(--color-fg);
+}
+
 @media (prefers-color-scheme: dark) {
     body {
         --color-bg: #000;
         --color-fg: #aaa;
         --color-act: #444;
     }
+
+    body.night .key, body.night .key:active {
+        box-shadow: none;
+        border: 1px solid var(--color-fg);
+    }
 }
 
 .container {
     max-width: 720px;
     display: inline-block;
+    text-align: left;
 }
+
+.key-block {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
 
 #connection-status {
     display: none;
@@ -88,18 +121,22 @@ body.night {
 }
 
 #connection-status.active {
-  display: inline-block;
+    display: inline-block;
 }
 </style>
 
 <script>
-function signal(key, needsInput) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST","/signals/" + key + "/signal",true);
-    var input = needsInput ? prompt( "value" ) : undefined;
-    xhr.addEventListener('load', () => setStatus());
-    xhr.send( input );
-}
+  const OFFLINE_MESSAGE = "You're offline!"
+
+  function signal(key, needsInput) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST","/signals/" + key + "/signal",true);
+      var input = needsInput ? prompt( "value" ) : undefined;
+      xhr.addEventListener('load', () => setStatus());
+      xhr.addEventListener('error', () => setStatus(OFFLINE_MESSAGE));
+      xhr.addEventListener('abort', () => setStatus(OFFLINE_MESSAGE));
+      xhr.send( input );
+  }
 
   function onActivate() {
       setDaytime();
@@ -119,9 +156,17 @@ function signal(key, needsInput) {
     }
 
   function checkUp() {
-      fetch("/health")
-        .then(() => { setStatus() })
-        .catch(() => { setStatus("You're offline!") });
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000)
+      fetch("/health", { signal: controller.signal })
+          .then((res) => {
+              clearTimeout(timeoutId);
+              res.ok ? setStatus() : setStatus(OFFLINE_MESSAGE);
+          })
+          .catch(() => {
+              clearTimeout(timeoutId);
+              setStatus(OFFLINE_MESSAGE);
+          });
     }
 
   function getDaytimeFlat() {
@@ -147,7 +192,7 @@ function signal(key, needsInput) {
             return d;
           })
       return [start, end]
-    }
+  }
 
   function setDaytime() {
       var now = new Date();
@@ -157,33 +202,39 @@ function signal(key, needsInput) {
       } else {
           document.body.classList.remove("night");
       }
-    }
+  }
 
   document.addEventListener("visibilitychange", onActivate);
   document.addEventListener("focus", onActivate);
 
 </script>
-
     </head>
 
     <body class="night">
-    <div id="connection-status"></div>
-    <div class="container">
+      <div id="connection-status"></div>
 
-    % for s in signals:
-    % if 'divider' in s:
-    <div>{{s["divider"]}}</div>
-    % end
-    % if 'key' in s:
-    <div class="key" onclick="signal('{{s["key"]}}', {{"true" if "variable" in s else "false"}});"><div class="key-label">{{s["name"]}}</div></div>
-    % end
-    % end
+      <div class="container">
+        <div class="key-block">
 
-    </div>
+        % for s in signals:
+        % if 'divider' in s:
+        </div>
+
+        <h2>{{s["divider"]}}</h2>
+        <div class="key-block">
+        % end
+        % if 'key' in s:
+          <div class="key" onclick="signal('{{s["key"]}}', {{"true" if "variable" in s else "false"}});"><div class="key-label">{{s["name"]}}</div></div>
+        % end
+        % end
+
+        </div>
+      </div>
     </body>
 
     <script>
       checkUp();
+      setInterval(checkUp, 5000);
       setDaytime();
     </script>
 </html>
